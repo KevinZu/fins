@@ -473,12 +473,12 @@ type fins_accessdata_tp struct {
 	node         uint8
 	unit         uint8
 	command_code uint16
-	year
-	month
-	day
-	hour
-	min
-	sec
+	year         int32
+	month        int32
+	day          int32
+	hour         int32
+	min          int32
+	sec          int32
 }
 
 type fins_diskinfo_tp struct {
