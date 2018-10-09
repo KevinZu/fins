@@ -338,6 +338,214 @@ const (
 	FINS_RETVAL_ABORTED = 0x4001 /* End code 0x3001 Service aborted			*/
 )
 
+type fins_area_tp struct { /*							*/
+	plc_mode  int32  /* CS/CJ or CV mode communication			*/
+	name      string /* Text string with the area short code			*/
+	bits      int32  /* Number of bits in the data				*/
+	length    int32  /* Number of bytes per element				*/
+	area      uint8  /* Area code						*/
+	low_id    uint32 /* Lowest identificator					*/
+	high_id   uint32 /* Highest identificator				*/
+	low_addr  uint32 /* Lowest memory address				*/
+	high_addr uint32 /* Highest memory address				*/
+	access    int32  /* Read or Read/Write access				*/
+	force     bool   /* Force status used 					*/
+} /*							*/
+/********************************************************/
+type fins_sys_tp struct {
+	address string
+	port    uint16
+	sockfd  int32
+	//time_t		timeout
+	error_count   int32
+	error_max     int32
+	last_error    int32
+	error_changed bool
+	local_net     uint8
+	local_node    uint8
+	local_unit    uint8
+	remote_net    uint8
+	remote_node   uint8
+	remote_unit   uint8
+	sid           uint8
+	comm_type     uint8
+	model         string
+	version       string
+	plc_mode      int32
+}
+
+type fins_datetime_tp struct {
+	year  int32
+	month int32
+	day   int32
+	hour  int32
+	min   int32
+	sec   int32
+	dow   int32
+}
+
+type fins_cycletime_tp struct {
+	min uint32
+	avg uint32
+	max uint32
+}
+
+type fins_cpustatus_tp struct {
+	message_exists                 []bool
+	running                        bool
+	flash_writing                  bool
+	battery_present                bool
+	standby                        bool
+	fatal_memory_error             bool
+	fatal_io_bus_error             bool
+	fatal_duplication_error        bool
+	fatal_inner_board_error        bool
+	fatal_io_point_overflow        bool
+	fatal_io_setting_error         bool
+	fatal_program_error            bool
+	fatal_cycle_time_over          bool
+	fatal_fals_error               bool
+	fal_error                      bool
+	duplex_error                   bool
+	interrupt_task_error           bool
+	basic_io_unit_error            bool
+	plc_setup_error                bool
+	io_verification_error          bool
+	inner_board_error              bool
+	cpu_bus_unit_error             bool
+	special_io_unit_error          bool
+	sysmac_bus_error               bool
+	battery_error                  bool
+	cs1_cpu_bus_unit_setting_error bool
+	special_io_unit_setting_error  bool
+	run_mode                       uint8
+	error_code                     uint16
+	error_message                  string
+}
+
+type fins_cpudata_tp struct {
+	model                   string
+	version                 string
+	system_block            []uint8
+	largest_em_bank         int32
+	program_area_size       int32
+	iom_size                int32
+	number_of_dm_words      int32
+	timer_counter_size      int32
+	em_non_file_memory_size int32
+	memory_card_size        int32
+	num_sysmac_bus_masters  int32
+	num_racks               int32
+	bus_unit_id             []uint16
+	bus_unit_present        []bool
+	dip_switch              []bool
+	memory_card_type        uint8
+}
+
+type fins_unitdata_tp struct {
+	model string
+	unit  uint8
+}
+
+type fins_msgdata_tp struct {
+	text string
+	msg  uint8
+}
+
+type fins_nodedata_tp struct {
+	network uint8
+	node    uint8
+	unit    uint8
+}
+
+type fins_errordata_tp struct {
+	error_code []uint16
+	year       int32
+	month      int32
+	day        int32
+	hour       int32
+	min        int32
+	sec        int32
+}
+
+type fins_accessdata_tp struct {
+	network      uint8
+	node         uint8
+	unit         uint8
+	command_code uint16
+	year
+	month
+	day
+	hour
+	min
+	sec
+}
+
+type fins_diskinfo_tp struct {
+	volume_label   string
+	total_capacity uint32
+	free_capacity  uint32
+	total_files    uint32
+	year           int32
+	month          int32
+	day            int32
+	hour           int32
+	min            int32
+	sec            int32
+}
+
+type fins_fileinfo_tp struct {
+	filename     string
+	size         uint32
+	year         int32
+	month        int32
+	day          int32
+	hour         int32
+	min          int32
+	sec          int32
+	read_only    bool
+	hidden       bool
+	system       bool
+	volume_label bool
+	directory    bool
+	archive      bool
+}
+
+type fins_address_tp struct {
+	name         string
+	main_address uint32
+	sub_address  uint32
+}
+
+type fins_forcebit_tp struct {
+	address       string
+	force_command uint16
+}
+
+type fins_bool struct {
+	bit     bool
+	b_force bool
+}
+
+type fins_multidata_tp struct {
+	/*
+		    char		address[12]
+		    int			type
+		    union {
+			int16_t		int16
+			int32_t		int32
+			uint16_t	uint16
+			uint32_t	uint32
+			float		sfloat
+			double		dfloat
+			finsBool fins_bool
+			struct {
+			    uint16_t	word
+			    uint16_t	w_force
+			}
+		    }*/
+}
+
 type FinsSysTp struct {
 	Address    string
 	Port       uint16
@@ -348,4 +556,15 @@ type FinsSysTp struct {
 	RemoteNet  uint8
 	RemoteNode uint8
 	RemoteUnit uint8
+
+	//	int		error_count
+	ErrorMax     int32
+	LastError    int32
+	ErrorChanged bool
+
+	Sid      uint8
+	CommType uint8
+	Model    string
+	Version  string
+	PlcMode  int32
 }
