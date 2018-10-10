@@ -1,19 +1,19 @@
 package fins
 
 import (
-	"bytes"
-	"encoding/binary"
+	//	"bytes"
+	//	"encoding/binary"
 	"errors"
 	"fmt"
-	"net"
-	"sync"
-	"sync/atomic"
+	//	"net"
+	//	"sync"
+	//	"sync/atomic"
 	"time"
 )
 
 ////////////////////////////////////////////////////// IO //////////////////////////////////////////////
 ////////////////////////////// io buffer ////////////////////////////
-
+/*
 type Buffer struct {
 	b    []byte
 	rOff int //读取位置
@@ -350,24 +350,24 @@ type client struct {
 	ioserv
 }
 
-func NewClient() *client {
-	c := &client{}
+//func NewClient() *client {
+//	c := &client{}
 
-	return c
-}
+//	return c
+//}
 
 // dial to server
-func (c *client) Dial(netPro, laddr string) {
-	c.runnable = true
+func (s *FinsSysTp) Dial(netPro, laddr string) {
+	s.runnable = true
 	conn, err := net.Dial(netPro, laddr)
 	if err != nil {
 		fmt.Println(err)
 	}
-	c.newIoSession(conn)
+	s.newIoSession(conn)
 	time.Sleep(20 * time.Millisecond)
-	c.wg.Wait()
+	s.wg.Wait()
 }
-
+*/
 ////////////////////////////////////////////////////// connect ////////////////////////////////////////////////
 func init_system(sys *FinsSysTp, error_max int32) {
 	//timeout_val = finslib_monotonic_sec_timer() - 2*FINS_TIMEOUT;
@@ -442,6 +442,11 @@ func (s *FinsSysTp) FinslibTcpConnect(address string, port uint16, local_net uin
 
 	s.Address = make([]byte, len(addr))
 	copy(s.Address, addr)
+
+	strPort := fmt.Sprintf("%d", port)
+	addrInfo := address + ":" + strPort
+	fmt.Println("addrinfo: ", addrInfo)
+	//go s.Dial("tcp", addrInfo)
 
 	return nil
 }
