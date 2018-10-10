@@ -2,7 +2,7 @@ package fins
 
 import (
 	"errors"
-	//"fmt"
+	"fmt"
 	"github.com/KevinZu/golis"
 	//"time"
 )
@@ -66,8 +66,9 @@ func (p *ProtoCodec) Decode(buffer *golis.Buffer, dataCh chan<- interface{}) err
 func (*ProtoCodec) Encode(message interface{}) ([]byte, error) {
 	// TODO: 封装fins包
 	if bs, ok := message.([]byte); ok {
-		dataFrame, err := fins.BuildFinsFrame(bs)
-		return dataFrame, err
+		//dataFrame, err := fins.BuildFinsFrame(bs)
+		//return dataFrame, err
+		fmt.Println(bs)
 	}
 	return nil, errors.New("failed")
 }
