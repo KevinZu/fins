@@ -573,4 +573,6 @@ type FinsSysTp struct {
 	PlcMode  int32
 
 	Timeout int64
+
+	CliGroup *ClientGroup
 }

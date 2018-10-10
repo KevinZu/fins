@@ -17,10 +17,10 @@ type ClientAddr struct {
 }
 
 type ClientGroup struct {
-	Dch         chan bool
-	ClientAddrs []*ClientAddr
-	Clients     map[*ClientInfo]*golis.Iosession
-	Timer       *time.Ticker
+	Dch chan bool
+	//	ClientAddrs map[string]*ClientAddr
+	Clients map[*ClientInfo]*golis.Iosession
+	Timer   *time.Ticker
 }
 
 var clientGroupInstance *ClientGroup
@@ -29,6 +29,7 @@ func GetClientGroup() *ClientGroup {
 	clientGroupOnce.Do(func() {
 		clientGroupInstance = &ClientGroup{}
 		clientGroupInstance.Clients = make(map[*ClientInfo]*golis.Iosession)
+		//	clientGroupInstance.ClientAddrs = make(map[string]*ClientAddr)
 		clientGroupInstance.Dch = make(chan bool)
 		clientGroupInstance.Timer = time.NewTicker(10 * time.Second)
 		go clientGroupInstance.TimerHandle(clientGroupInstance.Timer)
@@ -72,9 +73,61 @@ func popReq(l *list.List) interface{} {
 	return v
 }
 
+func (cg *ClientGroup) AddNewClient(cli *ClientAddr) error {
+	filter := &MsgFilter{}
+	c := golis.NewClient()
+	c.FilterChain().AddLast("clientFilter", filter)
+	codec := &ProtoCodec{}
+
+	c.SetCodecer(codec)
+	connectAddr := fmt.Sprintf("%s:%d", cli.Ip, cli.Port)
+	fmt.Println("== addr: ", connectAddr)
+	//cg.ClientAddrs[connectAddr] = cli
+
+	cliInfo := ClientInfo{}
+	cliInfo.Cli = c
+	cliInfo.conAddr = connectAddr
+	//	cliInfo.CommandList = list.New()
+
+	err := c.Dial("tcp", connectAddr)
+	if err != nil {
+		//c.Session.Close()
+		cliInfo.ConnStatus = DISCONNECT
+		cg.Clients[&cliInfo] = nil
+		//cliInfo.LastTryTime = GetCurTimeMs()
+		return err
+
+	} else {
+		cliInfo.ConnStatus = CONNECT
+		fmt.Printf("*** %p\n", c.Session) //
+		c.Session.SetExtraData("connectAddr", connectAddr)
+		cg.Clients[&cliInfo] = c.Session
+	}
+
+	fmt.Printf("+++    session: %p\n", c.Session)
+	fmt.Printf("+++    cliInfo: %p\n", &cliInfo)
+
+	return nil
+}
+
+func (cg *ClientGroup) DelClient(cli *ClientAddr) error {
+	connectAddr := fmt.Sprintf("%s:%d", cli.Ip, cli.Port)
+	for info, session := range cg.Clients {
+		if info.conAddr == connectAddr {
+			if info.ConnStatus == CONNECT {
+				session.Close()
+			}
+
+			delete(cg.Clients, info)
+			break
+		}
+	}
+	return nil
+}
+
 func (cg *ClientGroup) BuildClients(clients []*ClientAddr) error {
 
-	cg.ClientAddrs = clients
+	//cg.ClientAddrs = clients
 	//list.New()
 	filter := &MsgFilter{}
 
@@ -87,6 +140,7 @@ func (cg *ClientGroup) BuildClients(clients []*ClientAddr) error {
 		c.SetCodecer(codec)
 		connectAddr := fmt.Sprintf("%s:%d", v.Ip, v.Port)
 		fmt.Println("== addr: ", connectAddr)
+		//cg.ClientAddrs[connectAddr] = v
 
 		cliInfo := ClientInfo{}
 		cliInfo.Cli = c
