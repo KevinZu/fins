@@ -16,6 +16,10 @@ const (
 )
 
 const (
+	INVALID_SOCKET = -1
+)
+
+const (
 	FINS_MRES = 0
 	FINS_SRES = 1
 )
@@ -547,7 +551,7 @@ type fins_multidata_tp struct {
 }
 
 type FinsSysTp struct {
-	Address    string
+	Address    []byte
 	Port       uint16
 	SocketFd   int32
 	LocalNet   uint8
@@ -557,14 +561,16 @@ type FinsSysTp struct {
 	RemoteNode uint8
 	RemoteUnit uint8
 
-	//	int		error_count
+	ErrorCount   int32
 	ErrorMax     int32
 	LastError    int32
 	ErrorChanged bool
 
 	Sid      uint8
 	CommType uint8
-	Model    string
-	Version  string
+	Model    []byte
+	Version  []byte
 	PlcMode  int32
+
+	Timeout int64
 }
