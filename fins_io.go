@@ -52,7 +52,7 @@ func (s *FinsSysTp) FinslibTcpConnect(address string, port uint16, local_net uin
 
 		fmt.Println("===== FINS_RETVAL_TRY_LATER! ========")
 
-		return errors.New("FINS_RETVAL_TRY_LATER"), nil
+		return nil,errors.New("FINS_RETVAL_TRY_LATER")
 	}
 
 	if port < FINS_PORT_RESERVED || port >= FINS_PORT_MAX {
@@ -67,7 +67,7 @@ func (s *FinsSysTp) FinslibTcpConnect(address string, port uint16, local_net uin
 			*error_val = FINS_RETVAL_NO_READ_ADDRESS
 		}
 		fmt.Println("===== FINS_RETVAL_NO_READ_ADDRESS! ========")
-		return errors.New("FINS_RETVAL_NO_READ_ADDRESS"), nil
+		return nil,errors.New("FINS_RETVAL_NO_READ_ADDRESS")
 	}
 
 	init_system(s)
@@ -93,7 +93,7 @@ func (s *FinsSysTp) FinslibTcpConnect(address string, port uint16, local_net uin
 	cliGroup := GetClientGroup()
 	err, cliInfo := cliGroup.AddNewClient(cliAddr, error_max)
 	if err != nil {
-		return errors.New("Connect error!"), nil
+		return nil,errors.New("Connect error!")
 	}
 
 	frame := make([]byte, 20)
@@ -127,8 +127,8 @@ func (s *FinsSysTp) FinslibTcpConnect(address string, port uint16, local_net uin
 	err = session.Write(frame)
 	if err != nil {
 		fmt.Printf("tcp sent error: %v\n", err)
-		return err, nil
+		return nil,err
 	}
 
-	return nil, cliInfo
+	return cliInfo,nil
 }

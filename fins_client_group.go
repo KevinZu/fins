@@ -85,7 +85,7 @@ func popReq(l *list.List) interface{} {
 	return v
 }
 
-func (cg *ClientGroup) AddNewClient(cli *ClientAddr,error_max) (error, *ClientInfo) {
+func (cg *ClientGroup) AddNewClient(cli *ClientAddr,error_max int32) (error, *ClientInfo) {
 	filter := &MsgFilter{}
 	c := golis.NewClient()
 	c.FilterChain().AddLast("clientFilter", filter)
