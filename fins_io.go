@@ -12,7 +12,7 @@ import (
 )
 
 ////////////////////////////////////////////////////// connect ////////////////////////////////////////////////
-func init_system(sys *FinsSysTp, error_max int32) {
+func init_system(sys *FinsSysTp) {
 	//timeout_val = finslib_monotonic_sec_timer() - 2*FINS_TIMEOUT;
 	time_val := time.Now().Unix() - 2*FINS_TIMEOUT
 	//if ( finslib_monotonic_sec_timer() > timeout_val ) timeout_val = 0;
@@ -37,15 +37,13 @@ func init_system(sys *FinsSysTp, error_max int32) {
 	sys.RemoteNode = 0
 	sys.RemoteUnit = 0
 	sys.ErrorCount = 0
-	sys.ErrorMax = error_max
-	sys.LastError = FINS_RETVAL_SUCCESS
-	sys.ErrorChanged = false
+
 	sys.Timeout = time_val
 	sys.CliGroup = GetClientGroup()
 
 } /* init_system */
 
-func (s *FinsSysTp) FinslibTcpConnect(address string, port uint16, local_net uint8, local_node uint8, local_unit uint8, remote_net uint8, remote_node uint8, remote_unit uint8, error_val *int32, error_max int32) error {
+func (s *FinsSysTp) FinslibTcpConnect(address string, port uint16, local_net uint8, local_node uint8, local_unit uint8, remote_net uint8, remote_node uint8, remote_unit uint8, error_val *int32, error_max int32) (error, *ClientInfo) {
 	//*error_val = 12
 	if time.Now().Unix() < s.Timeout+FINS_TIMEOUT && s.Timeout > 0 {
 
@@ -90,7 +88,48 @@ func (s *FinsSysTp) FinslibTcpConnect(address string, port uint16, local_net uin
 	strPort := fmt.Sprintf("%d", port)
 	addrInfo := address + ":" + strPort
 	fmt.Println("addrinfo: ", addrInfo)
-	//go s.Dial("tcp", addrInfo)
 
-	return nil
+	cliAddr := &ClientAddr{}
+	//go s.Dial("tcp", addrInfo)
+	cliGroup := GetClientGroup()
+	err, cliInfo := cliGroup.AddNewClient(cliAddr, error_max)
+	if err != nil {
+		return errors.New("Connect error!"), nil
+	}
+
+	frame := make([]byte, 20)
+
+	frame[0] = 'F' /* Header				*/
+	frame[1] = 'I' /*					*/
+	frame[2] = 'N' /*					*/
+	frame[3] = 'S' /*					*/
+	/*					*/
+	frame[4] = 0x00  /* Length				*/
+	frame[5] = 0x00  /*					*/
+	frame[6] = 0x00  /*					*/
+	frame[7] = 8 + 4 /*					*/
+	/*					*/
+	frame[8] = 0x00  /* Command				*/
+	frame[9] = 0x00  /*					*/
+	frame[10] = 0x00 /*					*/
+	frame[11] = 0x00 /*					*/
+	/*					*/
+	frame[12] = 0x00 /* Error Code				*/
+	frame[13] = 0x00 /*					*/
+	frame[14] = 0x00 /*					*/
+	frame[15] = 0x00 /*					*/
+	/*					*/
+	frame[16] = 0x00        /* Client node add			*/
+	frame[17] = 0x00        /*					*/
+	frame[18] = 0x00        /*					*/
+	frame[19] = s.LocalNode /* Get node number automatically	*/
+
+	session := cliInfo.Session
+	err = session.Write(frame)
+	if err != nil {
+		fmt.Printf("tcp sent error: %v\n", err)
+		return err, nil
+	}
+
+	return nil, cliInfo
 }

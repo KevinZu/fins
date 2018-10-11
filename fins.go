@@ -561,11 +561,6 @@ type FinsSysTp struct {
 	RemoteNode uint8
 	RemoteUnit uint8
 
-	ErrorCount   int32
-	ErrorMax     int32
-	LastError    int32
-	ErrorChanged bool
-
 	Sid      uint8
 	CommType uint8
 	Model    []byte

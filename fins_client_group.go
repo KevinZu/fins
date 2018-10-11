@@ -50,8 +50,19 @@ type ClientInfo struct {
 	conAddr     string
 	Session     *golis.Iosession
 	LastTryTime int64
+
+	ErrorCount   int32
+	ErrorMax     int32
+	LastError    int32
+	ErrorChanged bool
 	//	SyncCmd     map[byte]string // key: SID  val: FinsCmd
 	//CommandList *list.List
+}
+
+func (cli *ClientInfo) Init(error_max int32) {
+	cli.ErrorMax = error_max
+	cli.LastError = FINS_RETVAL_SUCCESS
+	cli.ErrorChanged = false
 }
 
 func GetCurTimeMs() int64 {
@@ -73,7 +84,7 @@ func popReq(l *list.List) interface{} {
 	return v
 }
 
-func (cg *ClientGroup) AddNewClient(cli *ClientAddr) error {
+func (cg *ClientGroup) AddNewClient(cli *ClientAddr) (error, *ClientInfo) {
 	filter := &MsgFilter{}
 	c := golis.NewClient()
 	c.FilterChain().AddLast("clientFilter", filter)
@@ -95,7 +106,7 @@ func (cg *ClientGroup) AddNewClient(cli *ClientAddr) error {
 		cliInfo.ConnStatus = DISCONNECT
 		cg.Clients[&cliInfo] = nil
 		//cliInfo.LastTryTime = GetCurTimeMs()
-		return err
+		return err, nil
 
 	} else {
 		cliInfo.ConnStatus = CONNECT
@@ -107,7 +118,7 @@ func (cg *ClientGroup) AddNewClient(cli *ClientAddr) error {
 	fmt.Printf("+++    session: %p\n", c.Session)
 	fmt.Printf("+++    cliInfo: %p\n", &cliInfo)
 
-	return nil
+	return nil, &cliInfo
 }
 
 func (cg *ClientGroup) DelClient(cli *ClientAddr) error {
@@ -125,7 +136,7 @@ func (cg *ClientGroup) DelClient(cli *ClientAddr) error {
 	return nil
 }
 
-func (cg *ClientGroup) BuildClients(clients []*ClientAddr) error {
+func (cg *ClientGroup) BuildClients(clients []*ClientAddr, error_max int32) error {
 
 	//cg.ClientAddrs = clients
 	//list.New()
@@ -143,6 +154,7 @@ func (cg *ClientGroup) BuildClients(clients []*ClientAddr) error {
 		//cg.ClientAddrs[connectAddr] = v
 
 		cliInfo := ClientInfo{}
+		cliInfo.Init(error_max)
 		cliInfo.Cli = c
 		cliInfo.conAddr = connectAddr
 		//	cliInfo.CommandList = list.New()
