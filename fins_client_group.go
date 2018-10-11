@@ -62,6 +62,7 @@ type ClientInfo struct {
 func (cli *ClientInfo) Init(error_max int32) {
 	cli.ErrorMax = error_max
 	cli.LastError = FINS_RETVAL_SUCCESS
+	cli.ErrorCount = 0
 	cli.ErrorChanged = false
 }
 

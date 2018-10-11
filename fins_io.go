@@ -36,7 +36,6 @@ func init_system(sys *FinsSysTp) {
 	sys.RemoteNet = 0
 	sys.RemoteNode = 0
 	sys.RemoteUnit = 0
-	sys.ErrorCount = 0
 
 	sys.Timeout = time_val
 	sys.CliGroup = GetClientGroup()
