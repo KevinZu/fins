@@ -42,7 +42,7 @@ func init_system(sys *FinsSysTp) {
 
 } /* init_system */
 
-func (s *FinsSysTp) FinslibTcpConnect(address string, port uint16, local_net uint8, local_node uint8, local_unit uint8, remote_net uint8, remote_node uint8, remote_unit uint8, error_val *int32, error_max int32) (error, *ClientInfo) {
+func (s *FinsSysTp) FinslibTcpConnect(address string, port uint16, local_net uint8, local_node uint8, local_unit uint8, remote_net uint8, remote_node uint8, remote_unit uint8, error_val *int32, error_max int32) (*ClientInfo, error) {
 	//*error_val = 12
 	if time.Now().Unix() < s.Timeout+FINS_TIMEOUT && s.Timeout > 0 {
 
@@ -52,7 +52,7 @@ func (s *FinsSysTp) FinslibTcpConnect(address string, port uint16, local_net uin
 
 		fmt.Println("===== FINS_RETVAL_TRY_LATER! ========")
 
-		return errors.New("FINS_RETVAL_TRY_LATER")
+		return errors.New("FINS_RETVAL_TRY_LATER"), nil
 	}
 
 	if port < FINS_PORT_RESERVED || port >= FINS_PORT_MAX {
@@ -67,10 +67,10 @@ func (s *FinsSysTp) FinslibTcpConnect(address string, port uint16, local_net uin
 			*error_val = FINS_RETVAL_NO_READ_ADDRESS
 		}
 		fmt.Println("===== FINS_RETVAL_NO_READ_ADDRESS! ========")
-		return errors.New("FINS_RETVAL_NO_READ_ADDRESS")
+		return errors.New("FINS_RETVAL_NO_READ_ADDRESS"), nil
 	}
 
-	init_system(s, error_max)
+	init_system(s)
 
 	s.CommType = FINS_COMM_TYPE_TCP
 	s.Port = port

@@ -85,7 +85,7 @@ func popReq(l *list.List) interface{} {
 	return v
 }
 
-func (cg *ClientGroup) AddNewClient(cli *ClientAddr) (error, *ClientInfo) {
+func (cg *ClientGroup) AddNewClient(cli *ClientAddr,error_max) (error, *ClientInfo) {
 	filter := &MsgFilter{}
 	c := golis.NewClient()
 	c.FilterChain().AddLast("clientFilter", filter)
@@ -97,6 +97,7 @@ func (cg *ClientGroup) AddNewClient(cli *ClientAddr) (error, *ClientInfo) {
 	//cg.ClientAddrs[connectAddr] = cli
 
 	cliInfo := ClientInfo{}
+	cliInfo.Init(error_max)
 	cliInfo.Cli = c
 	cliInfo.conAddr = connectAddr
 	//	cliInfo.CommandList = list.New()
@@ -122,10 +123,9 @@ func (cg *ClientGroup) AddNewClient(cli *ClientAddr) (error, *ClientInfo) {
 	return nil, &cliInfo
 }
 
-func (cg *ClientGroup) DelClient(cli *ClientAddr) error {
-	connectAddr := fmt.Sprintf("%s:%d", cli.Ip, cli.Port)
+func (cg *ClientGroup) DelClient(cli *ClientInfo) error {
 	for info, session := range cg.Clients {
-		if info.conAddr == connectAddr {
+		if info == cli {
 			if info.ConnStatus == CONNECT {
 				session.Close()
 			}
